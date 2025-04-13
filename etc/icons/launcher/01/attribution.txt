@@ -1,0 +1,9 @@
+launcher icon:
+==============
+
+filepath: android-studio-project/MobileMesh/src/main/res/drawable/launcher.png
+source:   https://www.freepik.com/free-vector/abstract-vector-colorful-mesh-dark-background-futuristic-style-card-corrupted-point-sphere_23476206.htm
+license:  License Agreement for Freepik Content
+            https://www.freepik.com/legal/terms-of-use#nav-freepik-agreement
+author:   Garry Killian
+            https://www.freepik.com/author/garrykillian

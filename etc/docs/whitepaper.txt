@@ -1,0 +1,897 @@
+--------------------------------------------------------------------------------
+
+Overview and Purpose:
+
+https://www.youtube.com/watch?v=RrI3MUnExJM
+
+--------------------------------------------------------------------------------
+
+Previous efforts:
+
+[1] Briar
+
+https://briarproject.org/
+https://code.briarproject.org/briar/briar
+https://code.briarproject.org/briar/public-mesh-research/-/wikis/public-mesh-research-report
+
+* cons:
+  - per the research report into the creation of a public mesh:
+      The Briar messaging app and its underlying protocol stack, Bramble, operate using a "one-hop social mesh" data propagation strategy:
+      each device only connects to contacts chosen by the user, and only exchanges data with each contact that the user has chosen to share with that contact.
+      In particular, private messages are only delivered directly to the intended recipient.
+  - this does NOT implement a multi-hop routing strategy to create a true mesh network
+    that becomes more inter-connected as more devices are added to it
+
+[2] Berty Messenger
+
+https://github.com/berty/berty
+https://github.com/warren-bank/mirror-ReactNative-Berty-Messenger
+https://warren-bank.github.io/mirror-ReactNative-Berty-Messenger/docs/berty/index.html
+https://warren-bank.github.io/mirror-ReactNative-Berty-Messenger/docs/protocol/index.html
+https://warren-bank.github.io/mirror-ReactNative-Berty-Messenger/docs/protocol/index.html#specificities-of-direct-transport
+
+* pros:
+  - account creation is performed entirely client-side using encryption and generating keypairs
+  - its underlying "Wesh protcol" is fantastic
+    * uses IPFS and OrbitDB
+    * organizes nodes into groups
+      - groups having a single contact: for private chat
+      - groups having many contacts: for group chat
+  - mDNS works great on a LAN
+* cons:
+  - in my testing, direct connections (BLE, Wi-Fi Direct, Nearby Share) don't work
+  - even if they did, per the protocol doc:
+      direct transports are not using a DHT like IPFS and this is a synchronous communication protocol
+      since both devices need to be connected to each other in order to exchange messages
+  - this does NOT implement a multi-hop routing strategy to create a true mesh network
+    that becomes more inter-connected as more devices are added to it
+
+[3] SPAN (Smart Phone Ad-hoc Networking) project: MANET (Mobile Ad-Hoc Mesh Network) Manager
+
+https://www.mitre.org/our-impact/intellectual-property/smartphone-ad-hoc-networking-span
+https://github.com/ProjectSPAN/android-manet-manager
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager
+
+* pros:
+  - creates a multi-hop mesh network
+    * only relies on direct connection between participating devices
+    * does not require any LAN or WAN
+  - allows nodes in mesh to serve as gateways to other networks
+    * ex: LAN or WAN
+* cons:
+  - uses Wi-Fi in Ad-hoc mode
+    * requires root and (often) a modified kernel
+  - Wi-Fi in Ad-hoc mode quickly drains the battery
+* notes:
+  - stock Android 4.0.3 (ICS) and older
+    does allow Wi-Fi to be manually configured to use Ad-hoc mode
+    * no kernel modification required
+
+[4] Serval Mesh (aka: Batphone)
+
+http://www.servalproject.org/
+https://github.com/servalproject/batphone
+https://github.com/servalproject/serval-dna
+
+* cons:
+  - uses Wi-Fi in Ad-hoc mode
+    * requires root and targets very old devices
+  - Wi-Fi in Ad-hoc mode quickly drains the battery
+* notes:
+  - I haven't tested the app, or inspected its code
+  - the main developer for MANET Manager said that they did extensive testing and analysis
+    * they concluded that it didn't satisfy their needs
+    * they are incredibly smart, and I accept their conclusions
+* issues:
+    https://github.com/servalproject/serval-dna/issues/106
+    https://github.com/servalproject/serval-dna/issues/133
+
+--------------------------------------------------------------------------------
+
+Research:
+
+[1] SPAN (Smart Phone Ad-hoc Networking) project: MANET (Mobile Ad-Hoc Mesh Network) Manager
+
+* pros:
+  - the routing protocol implements an interface
+    * alternate strategies can be easily tested
+    * implemented routing strategies:
+      - SimpleReactiveProtocol
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/SimpleReactiveProtocol.java
+      - SimpleProactiveProtocol
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/SimpleProactiveProtocol.java
+      - OlsrProtocol
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/OlsrProtocol.java
+  - the library that calculates the shortest path between any 2 nodes
+    * implementation
+      - Dijkstra
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/Dijkstra.java
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/Node.java
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/Edge.java
+          https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/Route.java
+    * where:
+      - "node.edges" is an unordered set of adjacent edges
+        * ie: exactly 1 hop away
+      - "node.addr" is a String
+        * a MAC address would work nicely
+      - "edge.toAddr" is a String
+        * a MAC address would work nicely
+      - the resulting Route is simply an ordered list of Strings
+        * ie: obtained from "node.addr" and "edge.toAddr"
+        * null if no path exists
+* cons:
+  - the routing procol implementations don't use any network abstraction;
+    they perform raw networking with:
+    * DatagramSocket
+    * DatagramPacket
+    * InetAddress
+    * etc..
+
+[2] Bluetooth Low Energy
+
+https://punchthrough.com/android-ble-guide/
+https://github.com/weliem/blessed-android
+https://github.com/weliem/blessed-android/blob/master/SERVER.md
+https://github.com/weliem/blessed-android/blob/2.5.0/blessed/src/main/java/com/welie/blessed/BluetoothCentralManagerCallback.java
+
+* pros:
+  - low energy
+  - can scan for nearby devices
+    * obtain MAC address
+* cons:
+  - can only transfer very small amounts of data
+    * default MTU is 23 bytes
+    * 3 bytes of overhead per packet allows 20 bytes of data per message
+  - API can be difficult, and some versions of Android require workarounds
+    * which is why this library is a good abstraction
+* notes:
+  - device acting as a Central can connect to multiple Peripherals simultaneously
+  - device acting as a Peripheral can only interact with one Central at a time
+
+[3] Bluetooth (classic)
+
+* pros:
+  - can transfer large amounts of data
+  - can connect to socket server without pairing when the MAC address is known
+    * encryption is optional
+
+[4] Bluetooth Low Energy + Bluetooth (classic)
+
+https://stackoverflow.com/questions/68654571/android-device-connection-with-classic-bluetooth-and-ble-at-the-same-time
+https://stackoverflow.com/questions/19356144/simultaneous-bluetooth-and-bluetooth-le-connections-is-it-possible
+https://stackoverflow.com/questions/65578011/is-it-possible-to-have-an-bluetooth-spp-connection-and-ble-gatt-connection-in-an
+https://www.thedroidsonroids.com/blog/bluetooth-classic-vs-bluetooth-low-energy-ble
+
+* pros:
+  - Android is able to connect to 1 Bluetooth (classic) socket server,
+    while simultaneously being connected to multiple Bluetooth LE devices
+* notes:
+  - Classic Bluetooth and BLE are almost two different technologies,
+    so using them in parallel through the same app shouldn't be an issue.
+    The only restriction you have when working with both is that you cannot scan for both classic and LE devices at the same time.
+
+[5] X25519 key exchange
+
+https://github.com/duerrfk/ecdh-curve25519-mobile
+https://github.com/warren-bank/mirror-Android-ECDH-Curve25519-library
+
+* notes:
+  - implementation:
+      https://github.com/warren-bank/mirror-Android-ECDH-Curve25519-library/blob/master/src/java/de/frank_durr/ecdh_curve25519/ECDHCurve25519.java#L52
+      https://github.com/warren-bank/mirror-Android-ECDH-Curve25519-library/blob/master/src/jni/de_frank_durr_ecdh_curve25519_ECDHCurve25519.cc
+    code:
+      public static final int KEY_LENGTH = 32;
+    meaning:
+      all byte[] values are 32 bytes long:
+        public static byte[] generate_secret_key(SecureRandom random)
+        public static byte[] generate_public_key(byte[] secret_key)
+        public static byte[] generate_shared_secret(byte[] my_secret_key, byte[] other_public_key)
+
+--------------------------------------------------------------------------------
+
+Research (deep dive):
+
+[1] SPAN (Smart Phone Ad-hoc Networking) project: MANET (Mobile Ad-Hoc Mesh Network) Manager
+
+===========================================
+"SimpleProactiveProtocol" routing strategy:
+===========================================
+
+private static final int MESSAGE_PORT = 5555;
+
+* MessageBroadcastThread
+    broadcastSocket = new DatagramSocket();
+    broadcastSocket.setBroadcast(true);
+    byte[] bytes;
+    while() {
+      synchronized (myNode) {
+        myNode.expireTimestamp = new Timestamp(now() + EXPIRATION_TIME_MILLISEC);
+        HelloMessage helloMsg = new HelloMessage(myNode);
+        bytes = toBytes(helloMsg);
+      }
+      DatagramPacket packet = new DatagramPacket(bytes, bytes.length, InetAddress.getByName(manetcfg.getIpBroadcast()), MESSAGE_PORT);
+      broadcastSocket.send(packet);
+      Thread.sleep(BROADCAST_WAIT_TIME_MILLISEC);
+    }
+
+* MessageListenerThread
+    listenSocket = new DatagramSocket(MESSAGE_PORT); // bind
+    listenSocket.setSoTimeout(LISTEN_SOCKET_TIMEOUT_MILLISEC);
+    byte[] buff = new byte[MAX_MESSAGE_LENGTH];
+    while() {
+      DatagramPacket rxPacket = new DatagramPacket(buff, buff.length);
+      listenSocket.receive(rxPacket);
+      String senderAddr = ((InetSocketAddress)rxPacket.getSocketAddress()).getHostName().toString();
+      HelloMessage helloMsg = fromBytes(rxPacket.getData());
+      (new MessageProcessorThread(senderAddr, helloMsg)).start();
+    }
+
+* MessageProcessorThread
+    int hash = helloMsg.hashCode();
+    byte[] bytes;
+    synchronized (myNode) {
+      // ignore our own broadcasts; ignore messages from peers on the ignore list
+      if (senderAddr.equals(myNode.addr) || manetcfg.getRoutingIgnoreList().contains(senderAddr)) return;
+      handleHelloMessage(senderAddr, helloMsg);
+      // ignore repeat broadcasts
+      if (helloMsg.node.equals(myNode) || processedMsgs.contains(hash)) return;
+      processedMsgs.add(hash);
+      // increment hops, then rebroadcast
+      helloMsg.numHops++;
+      bytes = toBytes(helloMsg);
+    }
+    DatagramPacket packet = new DatagramPacket(bytes, bytes.length, InetAddress.getByName(manetcfg.getIpBroadcast()), MESSAGE_PORT);
+    rebroadcastSocket = new DatagramSocket();
+    rebroadcastSocket.setBroadcast(true);
+    rebroadcastSocket.send(packet);
+
+* private void handleHelloMessage(String senderAddr, HelloMessage helloMsg) {
+    Node node = helloMsg.node;
+    if (node == myNode) {
+      if (helloMsg.numHops == 2) {
+        // a neighbor rebroadcasted our message
+        Edge edge = new Edge(senderAddr, cost = 1, expireTimestamp = new Timestamp(now() + EXPIRATION_TIME_MILLISEC));
+        myNode.edges.add(edge);
+        // plan route
+        Node senderNode = nodes.get(senderAddr);
+        Route route = Dijkstra.findShortestRoute(myNode, senderNode, nodes);
+        routes.put(senderNode.addr, route)
+      }
+    }
+    else {
+      nodes.put(node.addr, node);
+      // add myNode as Edge to neighbor Node
+      Edge edge = new Edge(myNode.addr, cost = 1, expireTimestamp = new Timestamp(now() + EXPIRATION_TIME_MILLISEC));
+      nodes.get(node.addr).edges.add(edge);
+      // plan route
+      Route route = Dijkstra.findShortestRoute(myNode, node, nodes);
+      routes.put(node.addr, route)
+      // setup gateway
+      if (node.isGateway) {
+        gatewayNode = node;
+      }
+    }
+  }
+
+* RoutingThread
+    while () {
+      synchronized (myNode) {
+        for (node of nodes) {
+          for (edge of node.edges) {
+            if (edge is expired) remove edge
+          }
+          route = Dijkstra.findShortestRoute(myNode, node, nodes)
+          routes.put(node.addr, route)
+        }
+        for (route of routes) {
+          if (route is expired) remove route
+        }
+      }
+      Thread.sleep(ROUTE_GENERATION_WAIT_TIME_MILLISEC);
+    }
+
+--------------------------------------------------------------------------------
+
+Research (deep dive):
+
+[1] SPAN (Smart Phone Ad-hoc Networking) project: MANET (Mobile Ad-Hoc Mesh Network) Manager
+
+=====================================
+inter-process communication strategy:
+=====================================
+
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/AndroidManifest.xml
+
+* ManetService
+    <service android:name="org.span.service.core.ManetService" android:process="org.span.service.core.ManetService" />
+
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/ManetHelper.java
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/ManetObserver.java
+
+* ManetHelper
+    private Messenger sendMessenger;
+    private Messenger receiveMessenger;
+    private Set<ManetObserver> manetObservers;
+
+    public ManetHelper(Context context) {
+      intentReceiver = new ManetBroadcastReceiver();
+      context.registerReceiver(intentReceiver, intentFilter);
+
+      manetObservers = new HashSet<ManetObserver>();
+    }
+
+    public void registerObserver(ManetObserver observer) {
+      manetObservers.add(observer);
+    }
+
+* ManetBroadcastReceiver
+    private class ManetBroadcastReceiver extends BroadcastReceiver {
+      public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        Bundle data = intent.getExtras();
+
+        switch(action) {
+          case ManetService.ACTION_UVW:
+            for(ManetObserver observer : manetObservers) {
+              observer.onUVW(data);
+            }
+            break;
+        }
+      }
+    }
+
+* IBinder
+    public void connectToService() {
+      receiveMessenger = new Messenger(new IncomingHandler());
+      // which is passed as a parameter in all messages sent through the IBinder to "ManetService" as a form of callback.
+
+      Intent i = new Intent().setComponent(new ComponentName("org.span", "org.span.service.core.ManetService"));
+      context.startService(i);
+      // which ensures that "ManetService" is running.
+      // Even when this method is called from an external application that imports this helper class as a dependency,
+      // "ManetService" belongs to the MANET Manager application,
+      // which runs this service in a separate process.
+
+      serviceConn = new ManetServiceConnection();
+      context.bindService(i, serviceConn, Context.BIND_AUTO_CREATE);
+      // https://developer.android.com/reference/android/content/Context#bindService(android.content.Intent,%20android.content.ServiceConnection,%20int)
+    }
+
+* ManetServiceConnection
+    private class ManetServiceConnection implements ServiceConnection {
+      public void onServiceConnected(ComponentName name, IBinder service) {
+        sendMessenger = new Messenger(service);
+      }
+    }
+
+* generic communication flow:
+    public void sendXYZ() {
+      int what = ManetService.COMMAND_XYZ;
+      Message message = Message.obtain(null, what);
+      message.replyTo = receiveMessenger;
+      sendMessenger.send(message);
+    }
+
+* IncomingHandler
+    private class IncomingHandler extends Handler {
+      public void handleMessage(Message rxmessage) {
+        Bundle data = rxmessage.getData();
+
+        switch (rxmessage.what) {
+          case ManetService.COMMAND_XYZ:
+            // service response to: sendXYZ()
+            for(ManetObserver observer : manetObservers) {
+              observer.onXYZ(data);
+            }
+            break;
+        }
+      }
+    }
+
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/core/ManetService.java
+
+* ManetService
+    public class ManetService extends Service {
+      private final Messenger receiveMessenger = new Messenger(new IncomingHandler());
+      private ManetServiceHelper helper;
+
+      public void onCreate() {
+        helper = ManetServiceHelper.getInstance();
+        helper.setService(this);
+      }
+    }
+
+* IncomingHandler
+    private class IncomingHandler extends Handler {
+      public void handleMessage(Message rxmessage) {
+        switch (rxmessage.what) {
+          case ManetService.COMMAND_XYZ:
+            helper.handleXyzCommand(rxmessage);
+            break;
+        }
+      }
+    }
+
+* IBinder
+    public IBinder onBind(Intent intent) {
+      return receiveMessenger.getBinder();
+    }
+
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/core/ManetServiceHelper.java
+
+* ManetServiceHelper
+    public class ManetServiceHelper {
+      private static ManetServiceHelper instance;
+      private ManetService service;
+
+      public static ManetServiceHelper getInstance() {
+        if (instance == null) instance = new ManetServiceHelper();
+        return instance;
+      }
+
+      public void setService(ManetService service) {
+        this.service = service;
+      }
+    }
+
+* generic events:
+    // send broadcast
+    Intent intent = new Intent(ManetService.ACTION_UVW);
+    intent.putExtras(data);
+    service.sendBroadcast(intent);
+
+* generic communication flow:
+    public void handleXyzCommand(Message rxmessage) {
+      Bundle data = new Bundle();
+      data.putSerializable(ManetService.XYZ_KEY, XYZ_value);
+
+      // send response
+      Message msg = new Message();
+      msg.what = rxmessage.what;
+      msg.setData(data);
+      rxmessage.replyTo.send(msg);
+    }
+
+----------------------------------------
+
+summary:
+========
+
+* "ManetHelper" provides an API for IPC between an external app and "ManetService"
+  - it uses an observer pattern and will notify registered listeners of:
+    * all events
+    * all messages received from the service in response to requests made by API calls
+  - an external app will need to include this class as a dependency
+
+--------------------------------------------------------------------------------
+
+Strategy:
+
+similar to Berty..
+
+https://warren-bank.github.io/mirror-ReactNative-Berty-Messenger/docs/protocol/index.html#account-creation
+https://warren-bank.github.io/mirror-ReactNative-Berty-Messenger/docs/protocol/index.html#adding-contacts
+
+* onboarding involves creating a new account
+  - client-side operation that is unique to the device
+  - data associated with each account:
+    * name
+      - any user-friendly alias
+    * local MAC address for Bluetooth interface
+    * asymmetric encryption key pair
+      - private key is never shared
+      - public key is shared with contact during invitation handshake
+        * X25519 key exchange to generate a shared secret
+
+* contact invitation handshake
+  - "Alice":
+    * uses Bluetooth (classic) to:
+      - open a socket server (UUID-Alice)
+        * without discovery
+    * shares the following data with "Bob" (ex: via QR code):
+      - local public key (pubkey-Alice)
+      - local MAC address (MAC-Alice)
+      - name (name-Alice => "Alice")
+  - "Bob":
+    * obtains shared data (ex: scans QR code)
+    * computes the UUID for the remote socket server (UUID-Alice)
+      - input: MAC-Alice
+    * computes the shared secret
+      - input: prvkey-Bob, pubkey-Alice
+    * uses Bluetooth (classic) to:
+      - connect to socket (MAC-Alice w/ UUID-Alice)
+        * without pairing
+      - send the following data to "Alice":
+        * local public key (pubkey-Bob)
+        * encrypted by shared secret:
+            "${MAC-Bob}|${nonce}|${name-Bob}"
+  - "Alice":
+    * uses BT connection to:
+      - receive the data sent by "Bob"
+    * computes the shared secret
+      - input: prvkey-Alice, pubkey-Bob
+    * decrypts encrypted data
+    * validates encrypted data
+      - MAC-Bob must match the MAC address of the connected BluetoothDevice
+    * if valid:
+      - save contact:
+        * name (name-Bob => "Bob")
+        * MAC-Bob
+        * shared secret
+      - use BT connection to:
+        * send the following data to "Bob":
+          - encrypted by shared secret:
+              "${MAC-Alice}|${nonce}|OK"
+    * if not valid:
+      - close BT connection
+  - "Bob":
+    * uses BT connection to:
+      - receive the data sent by "Alice"
+    * decrypts encrypted data
+    * validates encrypted data
+      - MAC-Alice must match the MAC address of the connected BluetoothDevice
+      - nonce must equal the random value (previously sent by "Bob" to "Alice")
+    * if valid:
+      - save contact:
+        * name (name-Alice => "Alice")
+        * MAC-Alice
+        * shared secret
+    * if not valid:
+      - close BT connection
+
+references:
+===========
+https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getDefaultAdapter()
+https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getAddress()
+  to: get local MAC address for Bluetooth interface
+https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#listenUsingInsecureRfcommWithServiceRecord(java.lang.String,%20java.util.UUID)
+  to: open a socket server
+https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#getRemoteDevice(java.lang.String)
+https://developer.android.com/reference/android/bluetooth/BluetoothDevice#createInsecureRfcommSocketToServiceRecord(java.util.UUID)
+  to: connect to socket
+https://developer.android.com/reference/android/bluetooth/BluetoothDevice#getAddress()
+  to: get remote MAC address for connection
+
+--------------------------------------------------------------------------------
+
+Strategy:
+
+similar to MANET Manager..
+
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/SimpleProactiveProtocol.java
+https://github.com/warren-bank/mirror-SPAN-Android-Manet-Manager/blob/master/AndroidManetManager/src/org/span/service/routing/HelloMessage.java
+
+* modify the "SimpleProactiveProtocol" routing strategy
+  - use Bluetooth LE:
+    * to scan for nearby devices
+      - to maintain an unordered set of edges that are adjacent to the local node
+  - use Bluetooth (classic):
+    * to have a local socket server to which other devices can connect and send messages
+      - of various types
+      - of arbitrary size
+
+* public class SimpleProactiveProtocol extends RoutingProtocol {}
+    private BluetoothAdapter btAdapter;
+    private BluetoothServerSocket btServer;
+    private List<WeakReference<MessageObserver>> messageObservers;
+
+* start()
+    BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+    String mac = btAdapter.getAddress();
+    UUID uuid = getUUID(mac);
+    BluetoothServerSocket btServer = btAdapter.listenUsingInsecureRfcommWithServiceRecord("mesh node", uuid);
+    this.btAdapter = btAdapter;
+    this.btServer = btServer;
+    this.messageObservers = new ArrayList<WeakReference<MessageObserver>>();
+
+* MessageBroadcastThread
+    byte[] bytes;
+    while() {
+      synchronized (myNode) {
+        myNode.expireTimestamp = new Timestamp(now() + EXPIRATION_TIME_MILLISEC);
+        HelloMessage helloMsg = new HelloMessage(myNode);
+        bytes = convertObjectToBytes(helloMsg);
+      }
+      broadcast(bytes);
+      Thread.sleep(BROADCAST_WAIT_TIME_MILLISEC);
+    }
+
+* convertObjectToBytes
+    public static byte[] convertObjectToBytes(Serializable object) throws IOException {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(bos);
+      oos.writeObject(object);
+      return bos.toByteArray();
+    }
+
+* broadcast
+    private void broadcast(byte[] bytes) {
+      BluetoothDevice btDevice;
+      BluetoothSocket btSocket;
+
+      for (Edge edge : myNode.edges) {
+        String mac = edge.toAddr;
+        UUID uuid = getUUID(mac);
+
+        try {
+          btDevice = this.btAdapter.getRemoteDevice(mac);
+          btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(uuid);
+
+          btSocket.connect();
+          OutputStream out = btSocket.getOutputStream();
+          out.write(bytes);
+          out.flush();
+          out.close();
+          btSocket.close();
+        }
+        catch(Exception e) {}
+      }
+    }
+
+* MessageListenerThread
+    BluetoothSocket btSocket;
+    String mac;
+    while() {
+      try {
+        btSocket = this.btServer.accept();
+        mac = btSocket.getRemoteDevice().getAddress();
+        InputStream in = btSocket.getInputStream();
+        byte[] bytes = readAllBytes(in);
+        Object message = convertBytesToObject(bytes);
+
+        if (message instanceof HelloMessage)
+          (new HelloMessageProcessorThread(mac, (HelloMessage) message)).start();
+        else if (message instanceof RelayMessage)
+          (new RelayMessageProcessorThread(mac, (RelayMessage) message), bytes).start();
+        else if (message instanceof ContactHandshakeMessage)
+          (new ContactHandshakeMessageProcessorThread(mac, (ContactHandshakeMessage) message)).start();
+        else if (message instanceof GenericMessage)
+          (new GenericMessageProcessorThread(mac, (GenericMessage) message)).start();
+
+        in.close();
+        btSocket.close();
+      }
+      catch(Exception e) {}
+    }
+
+* readAllBytes
+    public static byte[] readAllBytes(InputStream inputStream) throws IOException {
+      final int bufferSize = 1024;
+      byte[] buffer = new byte[bufferSize];
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      int bytesRead;
+      while ((bytesRead = inputStream.read(buffer)) != -1) {
+        outputStream.write(buffer, 0, bytesRead);
+      }
+      return outputStream.toByteArray();
+    }
+
+* convertBytesToObject
+    public static Object convertBytesToObject(byte[] bytes) {
+      try (
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bis)) {
+        return ois.readObject();
+      }
+      catch (Exception e) {}
+      return null;
+    }
+
+* HelloMessage
+* HelloMessageProcessorThread
+    int hash = helloMsg.hashCode();
+    byte[] bytes;
+    synchronized (myNode) {
+      // ignore our own broadcasts; ignore messages from peers on the ignore list
+      if (senderAddr.equals(myNode.addr)) return;
+      handleHelloMessage(senderAddr, helloMsg);
+      // ignore repeat broadcasts
+      if (helloMsg.node.equals(myNode) || processedMsgs.contains(hash)) return;
+      processedMsgs.add(hash);
+      // increment hops, then rebroadcast
+      helloMsg.numHops++;
+      bytes = convertObjectToBytes(helloMsg);
+    }
+    broadcast(bytes);
+
+* private void handleHelloMessage(String senderAddr, HelloMessage helloMsg)
+    // no change
+
+* RoutingThread
+    // no change
+
+* RelayMessage
+    Route route;
+    GenericMessage message;
+* RelayMessageProcessorThread
+    int index = relayMsg.route.hops.indexOf(myNode.addr);
+    boolean isDestination = (index == relayMsg.route.hops.size() - 1);
+    if (isDestination) {
+      String mac = relayMsg.route.hops.get(0);
+      GenericMessage message = relayMsg.message;
+      (new GenericMessageProcessorThread(mac, message)).start();
+    }
+    else {
+      String mac = relayMsg.route.hops.get(index + 1);
+      relay(mac, bytes);
+    }
+  - design:
+    * this local Node an intermediate hop in a Route being used to send messages by a remote Node to another remote Node
+    * our job is to relay the (encrypted) message to the next hop
+
+* relay
+    private void relay(String mac, byte[] bytes) {
+      UUID uuid = getUUID(mac);
+
+      try {
+        BluetoothDevice btDevice = this.btAdapter.getRemoteDevice(mac);
+        BluetoothSocket btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(uuid);
+
+        btSocket.connect();
+        OutputStream out = btSocket.getOutputStream();
+        out.write(bytes);
+        out.flush();
+        out.close();
+        btSocket.close();
+      }
+      catch(Exception e) {}
+    }
+
+* ContactHandshakeMessage
+* ContactHandshakeMessageProcessorThread
+    // TODO
+
+* GenericMessage
+    byte[] data;
+* GenericMessageProcessorThread
+    if ((message.data != null) && (message.data.length > 0)) {
+      Contact contact = getContact(senderAddr);
+
+      if (contact != null) {
+        byte[] decryptedMsg = contact.decrypt(message.data);
+
+        if ((decryptedMsg != null) && (decryptedMsg.length > 0)) {
+          // list of dead references
+          List<WeakReference<MessageObserver>> deadObservers = new ArrayList<WeakReference<MessageObserver>>();
+
+          for (WeakReference<MessageObserver> _observer : messageObservers) {
+            MessageObserver observer = _observer.get();
+            if (observer == null)
+              deadObservers.add(_observer);
+            else
+              observer.onMessage(contact.name, senderAddr, decryptedMsg);
+          }
+
+          // remove dead references
+          if (!deadObservers.isEmpty())
+            messageObservers.removeAll(deadObservers);
+        }
+      }
+    }
+  - design:
+    * this mesh network is installed as an exposed service and made available to 3rd-party apps
+    * when 3rd-party apps bind to this service, they can register their own message processors
+      - each processor must implement a common interface (ie: MessageObserver)
+    * when a message is received from a mesh peer that isn't recognized as a system message (ie: "HelloMessage" or "RelayMessage" or "ContactHandshakeMessage")
+      - if the sender is a contact:
+        * the message is decrypted
+        * the decrypted message is passed to each 3rd-party processor
+          - along with the contact's name and MAC address
+      - else:
+        * the message is ignored
+
+* MessageObserver
+    public interface MessageObserver {
+      public void onMessage(String senderName, String senderAddr, byte[] data);
+    }
+
+* IBinder (aidl)
+    interface IRemoteService {
+      void addMessageObserver(MessageObserver observer);
+      void removeMessageObserver(MessageObserver observer);
+      boolean sendMessage(String toAddr, byte[] data);
+    }
+
+* IBinder (stub)
+    public class RemoteService extends Service {
+      @Override
+      public IBinder onBind(Intent intent) {
+        return binder;
+      }
+
+      private final IRemoteService.Stub binder = new IRemoteService.Stub() {
+        public void addMessageObserver(MessageObserver observer){
+          WeakReference<MessageObserver> _observer = new WeakReference<MessageObserver>(observer);
+          messageObservers.add(_observer);
+        }
+        public void removeMessageObserver(MessageObserver observer){
+          int index = indexOf(messageObservers, observer);
+          if (index != -1)
+            messageObservers.remove(index);
+        }
+        public boolean sendMessage(String toAddr, byte[] data) {
+          try {
+            if ((toAddr == null) || toAddr.isEmpty() || (data == null) || (data.length == 0)) return false;
+
+            Route route = routes.get(toAddr);
+            if (route == null) return false;
+
+            Contact contact = getContact(toAddr);
+            if (contact == null) return false;
+
+            byte[] encryptedData = contact.encrypt(data);
+            GenericMessage message = new GenericMessage(data);
+            RelayMessage relayMsg = new RelayMessage(route, message);
+
+            String mac = relayMsg.route.hops.get(1);
+            byte[] bytes = convertObjectToBytes(relayMsg);
+            relay(mac, bytes);
+            return true;
+          }
+          catch(Exception e) {}
+          return false;
+        }
+      };
+
+      public static <T> int indexOf(List<WeakReference<T>> list, T target) {
+        for (int i = 0; i < list.size(); i++) {
+          WeakReference<T> ref = list.get(i);
+          T obj = ref.get();
+          if (obj != null && Objects.equals(obj, target)) {
+            return i;
+          }
+        }
+        return -1;
+      }
+    }
+
+references:
+===========
+https://developer.android.com/reference/android/bluetooth/le/BluetoothLeScanner
+https://developer.android.com/reference/android/bluetooth/le/ScanCallback
+https://developer.android.com/develop/background-work/services/aidl#java
+
+--------------------------------------------------------------------------------
+
+considerations:
+===============
+
+* this.btServer is a BluetoothServerSocket
+  - the UUID for the socket server on each device needs to be deterministic
+    * I'm not sure if uniqueness is actually required, but..
+    * since the MAC address of each device is unique,
+      the UUID of the socket server on any device
+      can simply be derived from the value of its own MAC address
+  - the UUID for a remote socket server needs to be determined:
+    * during the contact invitation handshake
+      - after receiving the initial invite (ex: via QR code)
+    * broadcast(byte[] bytes)
+      - which sends a "HelloMessage" to every Edge
+    * relay(String mac, byte[] bytes)
+      - which sends a "RelayMessage" to the next hop in a Route
+
+references:
+===========
+https://developer.android.com/reference/java/util/UUID#UUID(long,%20long)
+  to: convert MAC address to UUID
+  notes:
+    * MAC address is 48 bits
+        public static long macStringToLong(String macAddress) {
+            String[] parts = macAddress.split("[:-]");
+            long result = 0;
+            for (String part : parts) {
+                result = result << 8;
+                result |= Integer.parseInt(part, 16);
+            }
+            return result;
+        }
+    * UUID is 128 bits
+      - where each of the constructor's 2 long parameters represent 64 bits:
+        public static UUID getUUID(String macAddress) {
+          return new UUID(
+            macStringToLong(macAddress),
+            0L
+          );
+        }
+
+--------------------------------------------------------------------------------
