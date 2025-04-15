@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory
+    android:key="@string/pref_settings_key"
+    android:title="@string/pref_settings_title">
+
+    <CheckBoxPreference
+      android:key="@string/pref_log_ble_peripheral_discovery_key"
+      android:title="@string/pref_log_ble_peripheral_discovery_title"
+      android:summaryOn="@string/pref_log_ble_peripheral_discovery_summary_on"
+      android:summaryOff="@string/pref_log_ble_peripheral_discovery_summary_off"
+      android:defaultValue="@string/pref_log_ble_peripheral_discovery_default" />
+
+  </PreferenceCategory>
+</PreferenceScreen>

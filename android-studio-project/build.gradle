@@ -1,0 +1,24 @@
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:8.7.2'    // https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google
+                                                        // https://developer.android.com/build/releases/gradle-plugin#updating-gradle
+                                                        // https://developer.android.com/build/releases/gradle-plugin#api-level-support
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+  }
+}
+
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}

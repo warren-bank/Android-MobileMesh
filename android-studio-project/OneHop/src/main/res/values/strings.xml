@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string translatable="false" name="app_name">OneHop</string>
+
+  <string name="heading_send_message">Send Message:</string>
+  <string name="label_message_text">Message</string>
+  <string name="label_button_send">Send</string>
+
+  <string name="empty_listview_edges">No nearby peers</string>
+  <string name="empty_listview_logs">No log messages</string>
+
+  <string name="permissions_denied">All permissions are required!</string>
+
+  <!-- Menu -->
+  <string name="menu_settings">Settings</string>
+
+  <!-- Settings -->
+  <string translatable="false" name="pref_settings_key">pref_settings</string>
+  <string name="pref_settings_title">@string/menu_settings</string>
+
+  <!-- Settings: Enable Remote Debugger -->
+  <string translatable="false" name="pref_log_ble_peripheral_discovery_key">pref_log_ble_peripheral_discovery</string>
+  <string translatable="false" name="pref_log_ble_peripheral_discovery_default">false</string>
+  <string name="pref_log_ble_peripheral_discovery_title">Add log message for BLE peripheral discovery</string>
+  <string name="pref_log_ble_peripheral_discovery_summary_on" >WARNING: high frequency</string>
+  <string name="pref_log_ble_peripheral_discovery_summary_off">Only show messages from peers</string>
+</resources>

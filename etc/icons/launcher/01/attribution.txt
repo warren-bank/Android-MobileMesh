@@ -1,0 +1,9 @@
+launcher icon:
+==============
+
+filepath: android-studio-project/OneHop/src/main/res/drawable/launcher.png
+source:   https://www.vecteezy.com/vector-art/7746097-cute-bunny-cartoon-posing-cartoon-rabbit-in-summer-holiday-vector-cartoon-illustration
+license:  Vecteezy License Agreement
+            https://www.vecteezy.com/licensing-agreement
+author:   Walank studio
+            https://www.vecteezy.com/members/walankstudio
