@@ -16,7 +16,7 @@ public class BluetoothClassicServer {
       if (btServer == null) {
         btServer = App.btAdapter.listenUsingInsecureRfcommWithServiceRecord(
           context.getString(R.string.app_name),
-          Utils.getUUID(App.macAddress)
+          Utils.getUUID(App.macAddress, true)
         );
       }
 

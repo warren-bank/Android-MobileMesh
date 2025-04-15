@@ -23,7 +23,7 @@ public class Utils {
   // ---------------------------------------------------------------------------
   // data type helpers
 
-  public static long macStringToLong(String macAddress) {
+  private static long macStringToLong(String macAddress) {
     long result = 0;
     try {
       String[] parts = macAddress.split("[:-]");
@@ -36,11 +36,36 @@ public class Utils {
     return result;
   }
 
-  public static UUID getUUID(String macAddress) {
+  private static UUID macStringToUUID(String macAddress) {
     return new UUID(
       macStringToLong(macAddress),
       0L
     );
+  }
+
+  public static UUID getUUID(String text) {
+    return getUUID(text, false);
+  }
+
+  public static UUID getUUID(String text, boolean isMacAddress) {
+    try {
+      return isMacAddress
+        ? macStringToUUID(text)
+        : UUID.fromString(text);
+    }
+    catch(Exception e) {}
+    return null;
+  }
+
+  public static UUID[] getUUIDs(String text) {
+    return getUUIDs(text, false);
+  }
+
+  public static UUID[] getUUIDs(String text, boolean isMacAddress) {
+    UUID uuid = getUUID(text, isMacAddress);
+    return (uuid != null)
+      ? new UUID[]{ uuid }
+      : null;
   }
 
   // ---------------------------------------------------------------------------

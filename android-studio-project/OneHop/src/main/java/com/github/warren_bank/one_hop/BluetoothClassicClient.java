@@ -17,7 +17,7 @@ public class BluetoothClassicClient {
     try {
       BluetoothDevice btDevice = App.btAdapter.getRemoteDevice(macAddress);
       BluetoothSocket btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(
-        Utils.getUUID(macAddress)
+        Utils.getUUID(macAddress, true)
       );
 
       btSocket.connect();
