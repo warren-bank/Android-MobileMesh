@@ -55,10 +55,6 @@ public class BluetoothLowEnergyServer {
       .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
       .build();
 
-    AdvertiseData scanResponse = new AdvertiseData.Builder()
-      .setIncludeDeviceName(true)
-      .build();
-
     AdvertiseData advertiseData = new AdvertiseData.Builder()
       .setIncludeTxPowerLevel(true)
       .addServiceUuid(new ParcelUuid(
@@ -66,7 +62,11 @@ public class BluetoothLowEnergyServer {
       ))
       .build();
 
-    peripheralManager.startAdvertising(advertiseSettings, scanResponse, advertiseData);
+    AdvertiseData scanResponse = new AdvertiseData.Builder()
+      .setIncludeDeviceName(true)
+      .build();
+
+    peripheralManager.startAdvertising(advertiseSettings, advertiseData, scanResponse);
   }
 
   public static void stopAdvertising() {
