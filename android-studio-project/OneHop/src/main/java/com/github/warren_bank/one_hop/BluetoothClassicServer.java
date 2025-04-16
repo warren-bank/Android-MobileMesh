@@ -53,6 +53,7 @@ public class BluetoothClassicServer {
             btSocket.getInputStream()
           );
           btSocket.close();
+          Utils.addLogMessage(Constants.LocalDevice, "BluetoothClassicServer: accepted connection" + "\nFrom: " + macAddress + "\nReceived: " + bytes.length + " bytes");
 
           // OneHop only sends text
           String message = new String(bytes);

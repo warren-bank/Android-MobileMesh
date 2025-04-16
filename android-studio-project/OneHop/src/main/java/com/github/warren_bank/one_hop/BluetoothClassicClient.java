@@ -15,6 +15,8 @@ public class BluetoothClassicClient {
 
   public static void send(String macAddress, byte[] bytes) {
     try {
+      Utils.addLogMessage(Constants.LocalDevice, "BluetoothClassicClient: opening connection" + "\nTo: " + macAddress + "\nSending: " + bytes.length + " bytes");
+
       BluetoothDevice btDevice = App.btAdapter.getRemoteDevice(macAddress);
       BluetoothSocket btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(
         Utils.getUUID(macAddress, true)

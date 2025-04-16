@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
   public void showFragment(Fragments which, String macAddress) {
     Fragment fragment = null;
 
-    if (macAddress.equals(Constants.LocalDevice)) {
+    if (Constants.LocalDevice.equals(macAddress)) {
       switch(which) {
         case EDGE_CHAT:
           if (App.macAddress == null)

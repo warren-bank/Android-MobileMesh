@@ -8,7 +8,6 @@ package com.github.warren_bank.one_hop;
  */
 
 import com.welie.blessed.BluetoothCentralManager;
-import com.welie.blessed.BluetoothCentralManagerCallback;
 import com.welie.blessed.BluetoothPeripheral;
 
 import android.bluetooth.le.ScanResult;
@@ -22,10 +21,9 @@ public class BluetoothLowEnergyClient {
   public static void initCentralManager(Context context) {
     if (centralManager != null) return;
 
-    BluetoothCentralManagerCallback cb = (BluetoothCentralManagerCallback) new CustomBluetoothCentralManagerCallback();
     Handler handler = new Handler();
+    centralManager  = new BluetoothCentralManager(context, new CustomBluetoothCentralManagerCallback(), handler);
 
-    centralManager = new BluetoothCentralManager(context, cb, handler);
     centralManager.disableLogging();
   }
 
@@ -57,9 +55,11 @@ public class BluetoothLowEnergyClient {
   // ---------------------------------------------------------------------------
   // customization
 
-  private static class CustomBluetoothCentralManagerCallback extends BluetoothCentralManagerCallback {
+  private static class CustomBluetoothCentralManagerCallback extends BluetoothLowEnergyClientLogger {
     @Override
     public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
+      super.onDiscoveredPeripheral(peripheral, scanResult);
+
       String macAddress = peripheral.getAddress();
 
       Utils.addEdge(macAddress);

@@ -8,7 +8,6 @@ package com.github.warren_bank.one_hop;
  */
 
 import com.welie.blessed.BluetoothPeripheralManager;
-import com.welie.blessed.BluetoothPeripheralManagerCallback;
 
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
@@ -30,18 +29,21 @@ public class BluetoothLowEnergyServer {
     if (peripheralManager != null) return;
 
     BluetoothManager mgr = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-    BluetoothPeripheralManagerCallback cb = new BluetoothPeripheralManagerCallback(){};
+    peripheralManager = new BluetoothPeripheralManager(context, mgr, new BluetoothLowEnergyServerLogger());
 
-    peripheralManager = new BluetoothPeripheralManager(context, mgr, cb);
     peripheralManager.setCentralManager(
       BluetoothLowEnergyClient.getCentralManager()
     );
-    peripheralManager.add(
-      new BluetoothGattService(
-        Constants.getBleServiceUUID(),
-        BluetoothGattService.SERVICE_TYPE_PRIMARY
-      )
+    initService();
+  }
+
+  private static void initService() {
+    BluetoothGattService service = new BluetoothGattService(
+      Constants.getBleServiceUUID(),
+      BluetoothGattService.SERVICE_TYPE_PRIMARY
     );
+
+    peripheralManager.add(service);
   }
 
   public static void startAdvertising() {
