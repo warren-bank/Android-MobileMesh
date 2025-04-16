@@ -16,6 +16,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.content.Context;
+import android.os.Build;
 import android.os.ParcelUuid;
 
 public class BluetoothLowEnergyServer {
@@ -52,12 +53,20 @@ public class BluetoothLowEnergyServer {
     if (!doesSupportAdvertising()) return;
     if (peripheralManager == null) return;
 
-    AdvertiseSettings advertiseSettings = new AdvertiseSettings.Builder()
+    AdvertiseSettings.Builder asBuilder;
+
+    asBuilder = new AdvertiseSettings.Builder()
       .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
-      .setConnectable(false)
+      .setConnectable(true)
       .setTimeout(0)
-      .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-      .build();
+      .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM);
+
+    if (Build.VERSION.SDK_INT >= 34) {
+      asBuilder.setDiscoverable(true);
+    }
+
+    AdvertiseSettings advertiseSettings = asBuilder.build();
+    asBuilder = null;
 
     // =========================================================================
     // legacy   BLE 4: total size must be <=  31 bytes
@@ -76,12 +85,14 @@ public class BluetoothLowEnergyServer {
       .build();
 
     AdvertiseData scanResponse = new AdvertiseData.Builder()
-      .setIncludeDeviceName(true)
+      .setIncludeDeviceName(false)
+      .setIncludeTxPowerLevel(false)
       .build();
 
-    String deviceName   = App.btAdapter.getName();
-    byte[] advDataBytes = AdvertiseHelper.advertiseDataToBytes(advertiseData, deviceName);
-    Utils.addLogMessage(Constants.LocalDevice, "BluetoothLowEnergyServer: Advertising (started)" + "\nData: " + advDataBytes.length + " bytes");
+    String deviceName        = App.btAdapter.getName();
+    byte[] advDataBytes      = AdvertiseHelper.advertiseDataToBytes(advertiseData, deviceName);
+    byte[] scanResponseBytes = AdvertiseHelper.advertiseDataToBytes(scanResponse,  deviceName);
+    Utils.addLogMessage(Constants.LocalDevice, "BluetoothLowEnergyServer: Advertising (started)" + "\nData: " + advDataBytes.length + " bytes" + "\nScan Response: " + scanResponseBytes.length + " bytes");
 
     peripheralManager.startAdvertising(advertiseSettings, advertiseData, scanResponse);
   }
