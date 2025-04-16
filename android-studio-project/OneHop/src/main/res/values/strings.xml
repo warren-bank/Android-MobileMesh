@@ -9,6 +9,8 @@
   <string name="empty_listview_edges">No nearby peers</string>
   <string name="empty_listview_logs">No log messages</string>
 
+  <!-- Errors -->
+  <string name="bluetooth_not_supported">Device does not support Bluetooth!</string>
   <string name="permissions_denied">All permissions are required!</string>
 
   <!-- Menu -->

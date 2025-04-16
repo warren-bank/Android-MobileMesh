@@ -21,6 +21,7 @@ public class App extends Application {
     super.onCreate();
 
     btAdapter = BluetoothAdapter.getDefaultAdapter();
+    if (btAdapter == null) return;
 
     // https://developer.android.com/about/versions/marshmallow/android-6.0-changes.html#behavior-hardware-id
     macAddress = (Build.VERSION.SDK_INT < 23)

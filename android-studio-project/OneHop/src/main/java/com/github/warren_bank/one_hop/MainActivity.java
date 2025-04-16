@@ -25,8 +25,14 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    didEnableBT = !App.btAdapter.isEnabled();
 
+    if (App.btAdapter == null) {
+      Toast.makeText(this, R.string.bluetooth_not_supported, Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
+    didEnableBT = !App.btAdapter.isEnabled();
     requestPermissions();
   }
 
