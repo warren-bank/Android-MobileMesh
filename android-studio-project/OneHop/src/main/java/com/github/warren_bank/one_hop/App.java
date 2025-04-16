@@ -29,5 +29,8 @@ public class App extends Application {
 
     edges = Utils.getObservableStringList();
     logs  = new HashMap<String, List<String>>();
+
+    Utils.addEdge(Constants.LocalDevice);
+    Utils.addLogMessage(Constants.LocalDevice, "Application: started");
   }
 }

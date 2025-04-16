@@ -90,6 +90,17 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
   public void showFragment(Fragments which, String macAddress) {
     Fragment fragment = null;
 
+    if (macAddress.equals(Constants.LocalDevice)) {
+      switch(which) {
+        case EDGE_CHAT:
+          if (App.macAddress == null)
+            which = Fragments.EDGE_LOG;   // disable Chat fragment when local Bluetooth Classic server is not running; show log instead.
+          else
+            macAddress = App.macAddress;  // connect local Bluetooth Classic client to local Bluetooth Classic server.
+          break;
+      }
+    }
+
     switch(which) {
       case ALL_EDGES:
         fragment = new EdgeListFragment(App.edges);
