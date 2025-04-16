@@ -7,6 +7,8 @@ package com.github.warren_bank.one_hop;
  * https://github.com/weliem/blessed-android/raw/2.5.0/docs/index.html
  */
 
+import com.github.warren_bank.one_hop.android_internals.AdvertiseHelper;
+
 import com.welie.blessed.BluetoothPeripheralManager;
 
 import android.bluetooth.BluetoothGattService;
@@ -57,8 +59,17 @@ public class BluetoothLowEnergyServer {
       .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
       .build();
 
+    // =========================================================================
+    // legacy   BLE 4: total size must be <=  31 bytes
+    // extended BLE 5: total size must be <= 254 bytes (Android 8+)
+    //   https://novelbits.io/maximum-data-bluetooth-advertising-packet-ble/
+    //   https://source.android.com/docs/core/connect/bluetooth/ble_advertising
+    // =========================================================================
+    // legacy:
+    // =========================================================================
     AdvertiseData advertiseData = new AdvertiseData.Builder()
-      .setIncludeTxPowerLevel(true)
+      .setIncludeDeviceName(false)
+      .setIncludeTxPowerLevel(false)
       .addServiceUuid(new ParcelUuid(
         Constants.getBleServiceUUID()
       ))
@@ -67,6 +78,10 @@ public class BluetoothLowEnergyServer {
     AdvertiseData scanResponse = new AdvertiseData.Builder()
       .setIncludeDeviceName(true)
       .build();
+
+    String deviceName   = App.btAdapter.getName();
+    byte[] advDataBytes = AdvertiseHelper.advertiseDataToBytes(advertiseData, deviceName);
+    Utils.addLogMessage(Constants.LocalDevice, "BluetoothLowEnergyServer: Advertising (started)" + "\nData: " + advDataBytes.length + " bytes");
 
     peripheralManager.startAdvertising(advertiseSettings, advertiseData, scanResponse);
   }
