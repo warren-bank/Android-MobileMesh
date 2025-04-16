@@ -28,7 +28,10 @@ public class BluetoothLowEnergyServer {
   }
 
   public static void initPeripheralManager(Context context) {
-    if (!doesSupportAdvertising()) return;
+    if (!doesSupportAdvertising()) {
+      Utils.addLogMessage(Constants.LocalDevice, "BluetoothLowEnergyServer: Advertising (failed)" + "\nError: not supported by hardware");
+      return;
+    }
     if (peripheralManager != null) return;
 
     BluetoothManager mgr = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
