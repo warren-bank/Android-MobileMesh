@@ -1,0 +1,77 @@
+apply from: '../constants.gradle'
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+  namespace project.ext.applicationId
+
+  compileSdkVersion project.ext.compileSdkVersion
+  buildToolsVersion project.ext.buildToolsVersion
+
+  compileOptions {
+    sourceCompatibility project.ext.javaVersion
+    targetCompatibility project.ext.javaVersion
+  }
+
+  kotlinOptions {
+    jvmTarget = project.ext.javaVersion.toString()
+  }
+
+  defaultConfig {
+    minSdkVersion    project.ext.minSdkVersion
+    targetSdkVersion project.ext.targetSdkVersion
+
+    applicationId project.ext.applicationId
+    versionName   project.ext.releaseVersion
+    versionCode   project.ext.releaseVersionCode
+
+    archivesBaseName += "-$versionName"
+  }
+
+  buildTypes {
+    release {
+      debuggable      false
+      jniDebuggable   false
+      shrinkResources true
+      minifyEnabled   true
+      proguardFiles = [
+        "proguard-rules.txt",
+        getDefaultProguardFile('proguard-android.txt')
+      ]
+    }
+    debug {
+      debuggable      true
+      jniDebuggable   true
+      shrinkResources false
+      minifyEnabled   false
+    }
+  }
+
+  buildFeatures {
+    viewBinding true
+  }
+
+  dependenciesInfo {
+    includeInApk    = false  // Disables dependency metadata when building APKs.
+    includeInBundle = false  // Disables dependency metadata when building Android App Bundles.
+  }
+
+  lintOptions {
+    disable 'MissingTranslation'
+    abortOnError true
+  }
+}
+
+dependencies {
+  implementation 'androidx.activity:activity-ktx:1.2.0-alpha08'
+  implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+  implementation 'androidx.core:core-ktx:1.3.1'
+  implementation 'androidx.fragment:fragment-ktx:1.3.0-alpha08'
+  implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+  implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
+  implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+  implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+  implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.25'
+}

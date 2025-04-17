@@ -1,0 +1,2 @@
+-keepattributes RuntimeVisibleAnnotations
+-keep class * extends androidx.navigation.Navigator
