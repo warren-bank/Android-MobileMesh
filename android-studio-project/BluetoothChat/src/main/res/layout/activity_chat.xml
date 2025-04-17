@@ -44,7 +44,7 @@
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_edittext_selector"
-                android:hint="请输入发送内容"
+                android:hint="@string/layout_activity_chat_et_write"
                 android:inputType="text"
                 android:padding="5dip"
                 android:singleLine="true"

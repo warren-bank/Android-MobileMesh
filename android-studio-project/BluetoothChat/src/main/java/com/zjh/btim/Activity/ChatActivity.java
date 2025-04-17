@@ -92,10 +92,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 case BLUE_TOOTH_WRAITE:
                     String writeMessage = (String) msg.obj;
                     Log.i("zjh聊天", "我" + ":" + writeMessage);
-                    list.add(new ChatInfo(ChatInfo.TAG_RIGHT, "我", writeMessage));
+                    list.add(new ChatInfo(ChatInfo.TAG_RIGHT, getString(R.string.activity_chatactivity_handlemessage_blue_tooth_wraite_chatinfo), writeMessage));
                     recyclerChatAdapter.notifyDataSetChanged();
                     recyclerView.smoothScrollToPosition(list.size());
-                    dbManager.add(new ChatRecord(deviceMac, ChatInfo.TAG_RIGHT, "我", writeMessage));
+                    dbManager.add(new ChatRecord(deviceMac, ChatInfo.TAG_RIGHT, getString(R.string.activity_chatactivity_handlemessage_blue_tooth_wraite_chatrecord), writeMessage));
                     break;
                 case BLUE_TOOTH_READ_FILE_NOW:
                     Log.i("zjh蓝牙文件传输", msg.obj + "");
@@ -103,7 +103,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case BLUE_TOOTH_WRAITE_FILE_NOW:
                     Log.i("zjh蓝牙文件传输", msg.obj + "");
-                    if (msg.obj.toString().equals("文件发送失败")) {
+                    if (msg.obj.toString().equals(getString(R.string.activity_chatactivity_handlemessage_blue_tooth_wraite_file_now_equals))) {
                         dialog.dismiss();
                         Snackbar.make(et_write, (String) msg.obj, Snackbar.LENGTH_LONG).show();
                     } else {
@@ -122,10 +122,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 case BLUE_TOOTH_WRAITE_FILE:
                     Log.i("zjh蓝牙文件传输", "文件发送完成");
                     dialog.dismiss();
-                    list.add(new ChatInfo(ChatInfo.TAG_FILE_RIGHT, "我", msg.obj + ""));
+                    list.add(new ChatInfo(ChatInfo.TAG_FILE_RIGHT, getString(R.string.activity_chatactivity_handlemessage_blue_tooth_wraite_file_chatinfo), msg.obj + ""));
                     recyclerChatAdapter.notifyDataSetChanged();
                     recyclerView.smoothScrollToPosition(list.size());
-                    dbManager.add(new ChatRecord(deviceMac, ChatInfo.TAG_FILE_RIGHT, "我", msg.obj + ""));
+                    dbManager.add(new ChatRecord(deviceMac, ChatInfo.TAG_FILE_RIGHT, getString(R.string.activity_chatactivity_handlemessage_blue_tooth_wraite_file_chatrecord), msg.obj + ""));
                     break;
                 case UPDATE_DATA:
                     recyclerChatAdapter.notifyDataSetChanged();
@@ -154,7 +154,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         deviceName = intent.getStringExtra(DEVICE_NAME_INTENT);
         deviceMac = intent.getStringExtra(DEVICE_MAC_INTENT);
         setTitle(deviceName);
-        bluetoothChatService = BluetoothChatService.getInstance(handler);
+        bluetoothChatService = BluetoothChatService.getInstance(this, handler);
         dbManager = new DBManager(this);
         initView();
         List<ChatRecord> chatRecordList = dbManager.query(deviceMac);
@@ -270,7 +270,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private void send() {
         String write = et_write.getText().toString().trim();
         if (TextUtils.isEmpty(write)) {
-            Snackbar.make(et_write, "发送内容不能为空", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(et_write, R.string.activity_chatactivity_snackbar_send, Snackbar.LENGTH_LONG).show();
             return;
         }
         bluetoothChatService.sendData(write);
@@ -291,7 +291,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onPermissionDenied() {
                         //权限获取失败
-                        Snackbar.make(et_write, "请手动到设置界面给予相关权限", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(et_write, R.string.activity_chatactivity_snackbar_send_file, Snackbar.LENGTH_LONG).show();
                     }
                 });
     }
@@ -303,9 +303,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         try {
-            startActivityForResult(Intent.createChooser(intent, "Select a File to Upload"), FILE_SELECT_CODE);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.activity_chatactivity_chooser_startactivity)), FILE_SELECT_CODE);
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.activity_chatactivity_toast_activitynotfound, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -320,20 +320,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     Log.i("zjh-选择文件", "File Path: " + path);
                     if (path != null) {
                         AlertDialog.Builder ad = new AlertDialog.Builder(ChatActivity.this);
-                        ad.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        ad.setPositiveButton(R.string.activity_chatactivity_posbutton_onactivityresult_file_select_code, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 sendFile(path);
                             }
                         });
-                        ad.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        ad.setNegativeButton(R.string.activity_chatactivity_negbutton_onactivityresult_file_select_code, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                             }
                         });
-                        ad.setMessage("你确定要发送" + path + "吗?");
-                        ad.setTitle("提示");
+                        ad.setMessage(getString(R.string.activity_chatactivity_setmessage_onactivityresult_file_select_code_1) + path + getString(R.string.activity_chatactivity_setmessage_onactivityresult_file_select_code_2) + "?");
+                        ad.setTitle(R.string.activity_chatactivity_settitle_onactivityresult_file_select_code);
                         ad.setCancelable(false);
                         ad.show();
                     }
@@ -351,20 +351,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
     private void exit() {
         AlertDialog.Builder ad = new AlertDialog.Builder(ChatActivity.this);
-        ad.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        ad.setPositiveButton(R.string.activity_chatactivity_posbutton_onexit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
                 dbManager.closeDB();
             }
         });
-        ad.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+        ad.setNegativeButton(R.string.activity_chatactivity_negbutton_onexit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
-        ad.setNeutralButton("最小化", new DialogInterface.OnClickListener() {
+        ad.setNeutralButton(R.string.activity_chatactivity_neutralbutton_onexit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent home = new Intent(Intent.ACTION_MAIN);
@@ -373,8 +373,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(home);
             }
         });
-        ad.setMessage("你确定要断开连接吗？");
-        ad.setTitle("提示");
+        ad.setMessage(R.string.activity_chatactivity_setmessage_onexit);
+        ad.setTitle(R.string.activity_chatactivity_settitle_onexit);
         ad.setCancelable(false);
         ad.show();
     }

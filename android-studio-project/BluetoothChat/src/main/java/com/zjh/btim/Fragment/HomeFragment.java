@@ -72,7 +72,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         @Override
         public void getConnectedBlueToothDevices(BluetoothDevice device) {
-            Snackbar.make(getView(), "连接" + device.getName() + "成功", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView(), getString(R.string.fragment_homefragment_snackbar_getconnectedbluetoothdevices_1) + device.getName() + getString(R.string.fragment_homefragment_snackbar_getconnectedbluetoothdevices_2), Snackbar.LENGTH_LONG).show();
         }
 
         @Override
@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         @Override
         public void open() {
-            mBluetoothChatService = BluetoothChatService.getInstance(handler);
+            mBluetoothChatService = BluetoothChatService.getInstance(getContext(), handler);
             mBluetoothChatService.start();
             update();
         }
@@ -123,7 +123,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     intent.putExtra(ChatActivity.DEVICE_NAME_INTENT, remoteDevice.getName());
                     intent.putExtra(ChatActivity.DEVICE_MAC_INTENT, remoteDevice.getAddress());
                     final ProgressDialog dialog = new ProgressDialog(getContext());
-                    dialog.setMessage("连接设备" + msg.obj + "成功");
+                    dialog.setMessage(getString(R.string.fragment_homefragment_setmessage_handlemessage_blue_tooth_success_1) + msg.obj + getString(R.string.fragment_homefragment_setmessage_handlemessage_blue_tooth_success_2));
                     dialog.setCancelable(false);
                     dialog.show();
                     Timer timer = new Timer();
@@ -205,7 +205,7 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         }
         adapter.notifyDataSetChanged();
         if (bluetoothUtil.isBluetoothEnable()) {
-            mBluetoothChatService = BluetoothChatService.getInstance(handler);
+            mBluetoothChatService = BluetoothChatService.getInstance(getContext(), handler);
             mBluetoothChatService.start();
         }
     }
@@ -222,21 +222,21 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
      */
     private void ShowDialog(final BluetoothDevice device) {
         AlertDialog.Builder ad = new AlertDialog.Builder(this.getActivity());
-        ad.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        ad.setPositiveButton(R.string.fragment_homefragment_posbutton_showdialog, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //连接
                 mBluetoothChatService.connectDevice(device);
             }
         });
-        ad.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+        ad.setNegativeButton(R.string.fragment_homefragment_negbutton_showdialog, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
-        ad.setMessage("你确定要与" + device.getName() + "建立连接吗？");
-        ad.setTitle("提示");
+        ad.setMessage(getString(R.string.fragment_homefragment_setmessage_showdialog_1) + device.getName() + getString(R.string.fragment_homefragment_setmessage_showdialog_2) + "?");
+        ad.setTitle(R.string.fragment_homefragment_settitle_showdialog);
         ad.setCancelable(false);
         ad.show();
     }
@@ -249,10 +249,10 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public void showProgressDialog(String msg) {
         if (progressDialog == null)
             progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage(msg + "\n连接设备需打开本应用");
+        progressDialog.setMessage(msg + "\n" + getString(R.string.fragment_homefragment_setmessage_showprogressdialog));
         progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(false);
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.fragment_homefragment_negbutton_showprogressdialog), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

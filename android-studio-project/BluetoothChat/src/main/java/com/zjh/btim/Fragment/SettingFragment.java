@@ -29,10 +29,10 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
     private TextView tvBt;
     private CardView cvBtSetting;
     private CardView cvBtQxSetting;
+    private static String VALUE_OPEN = "";
+    private static String VALUE_CLOSE = "";
     private static final int COLOR_OPEN = Color.parseColor("#4DB6AC");
     private static final int COLOR_CLOSE = Color.parseColor("#a2a3a3");
-    private static final String VALUE_OPEN = "蓝牙已打开\n点击关闭";
-    private static final String VALUE_CLOSE = "蓝牙未打开\n点击开启";
     private BlueToothInterface blueToothInterface = new BlueToothInterface() {
 
         @Override
@@ -85,6 +85,8 @@ public class SettingFragment extends Fragment implements View.OnClickListener {
         cvBtSetting.setOnClickListener(this);
         cvBtQxSetting = view.findViewById(R.id.cv_bt_qx_setting);
         cvBtQxSetting.setOnClickListener(this);
+        VALUE_OPEN  = getString(R.string.fragment_settingfragment_value_open);
+        VALUE_CLOSE = getString(R.string.fragment_settingfragment_value_close);
         initBtSwitch();
         registerBluetoothReceiver();
     }

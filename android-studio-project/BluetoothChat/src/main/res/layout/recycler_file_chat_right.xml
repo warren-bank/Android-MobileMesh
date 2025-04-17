@@ -29,7 +29,7 @@
                 android:layout_margin="5dp"
                 android:layout_weight="1"
                 android:gravity="left|center_vertical"
-                android:text="文件.zip"
+                android:text="@string/layout_recycler_file_chat_right_tv_right"
                 android:textColor="#000"
                 android:textSize="14dp" />
 
@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:text="我" />
+                android:text="@string/layout_recycler_file_chat_right_tv_device" />
         </RelativeLayout>
 
 

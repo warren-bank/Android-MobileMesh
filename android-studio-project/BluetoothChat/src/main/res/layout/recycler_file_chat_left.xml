@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:maxWidth="50dp"
-            android:text="对方" />
+            android:text="@string/layout_recycler_file_chat_left_tv_device" />
     </RelativeLayout>
 
     <LinearLayout
@@ -39,7 +39,7 @@
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:gravity="left|center_vertical"
-            android:text="文件.zip"
+            android:text="@string/layout_recycler_file_chat_left_tv_left"
             android:textColor="#000"
             android:textSize="14dp" />
 

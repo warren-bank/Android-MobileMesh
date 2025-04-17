@@ -1,5 +1,7 @@
 package com.zjh.btim.Util;
 
+import com.zjh.btim.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -128,11 +130,11 @@ public class OpenFileUtil {
             if (context.getPackageManager().resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
                 context.startActivity(intent);
             } else {
-                Toast.makeText(context, "没有找到对应的程序", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.util_openfileutil_toast_activitynotfound, Toast.LENGTH_SHORT).show();
             }
 
         } catch (Exception e) { //当系统没有携带文件打开软件，提示
-            Toast.makeText(context, "无法打开该格式文件", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.util_openfileutil_toast_error, Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }

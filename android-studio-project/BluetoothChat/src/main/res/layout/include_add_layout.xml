@@ -29,7 +29,7 @@
                 android:layout_below="@id/ivFile"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="15px"
-                android:text="文件"
+                android:text="@string/layout_include_add_layout_ivfile"
                 android:textSize="12sp" />
         </RelativeLayout>
 

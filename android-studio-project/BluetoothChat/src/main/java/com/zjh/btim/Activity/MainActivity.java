@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle("蓝牙即时通讯");
+        setTitle(getString(R.string.activity_mainactivity_title));
         initView();
     }
 
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionDenied() {
                         //权限获取失败
-                        Snackbar.make(bottomNavigationView, "请手动到设置界面给予相关权限", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(bottomNavigationView, R.string.activity_mainactivity_snackbar_onpermissiondenied, Snackbar.LENGTH_LONG).show();
                     }
                 });
     }

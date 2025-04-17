@@ -20,7 +20,7 @@
             android:gravity="left|center_vertical"
             android:maxWidth="250dp"
             android:paddingTop="5dp"
-            android:text="我发的消息"
+            android:text="@string/layout_recycler_chat_right_tv_right"
             android:textColor="#000"
             android:textSize="14dp" />
 
@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:text="我" />
+                android:text="@string/layout_recycler_chat_right_tv_device" />
         </RelativeLayout>
 
 

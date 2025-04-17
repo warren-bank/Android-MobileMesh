@@ -20,14 +20,14 @@
             android:id="@+id/tv_bt_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设备名称"
+            android:text="@string/layout_item_bt_list_tv_bt_name"
             android:textColor="#fff" />
 
         <TextView
             android:id="@+id/tv_bt_mac"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设备地址"
+            android:text="@string/layout_item_bt_list_tv_bt_mac"
             android:textColor="#fff" />
     </LinearLayout>
 

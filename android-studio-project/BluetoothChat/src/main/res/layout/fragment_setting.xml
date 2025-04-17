@@ -53,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="蓝牙设置"
+                    android:text="@string/layout_fragment_setting_cv_bt_setting"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
@@ -80,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="需要开启蓝牙、定位、读写手机存储权限"
+                    android:text="@string/layout_fragment_setting_cv_bt_qx_setting"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
