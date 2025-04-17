@@ -1,0 +1,10 @@
+project.ext {
+  applicationId       = 'com.example.android.bluetoothchat'
+  releaseVersionCode  = 1
+  releaseVersion      = '1.0'
+  javaVersion         = JavaVersion.VERSION_1_8
+  minSdkVersion       = 11
+  targetSdkVersion    = 27
+  compileSdkVersion   = 35
+  buildToolsVersion   = '34.0.0'
+}
