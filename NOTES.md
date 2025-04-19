@@ -10,3 +10,4 @@ modifications:
 
 * updated build tools
 * migrated strings from layouts and code to resources
+* translated string resources from Chinese with LibreTranslate

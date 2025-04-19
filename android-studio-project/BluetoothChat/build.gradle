@@ -27,6 +27,17 @@ android {
     buildConfig true
   }
 
+  flavorDimensions "languageResources"
+
+  productFlavors {
+    withAllLanguageTranslations {
+      dimension "languageResources"
+    }
+    chinese {
+      dimension "languageResources"
+    }
+  }
+
   buildTypes {
     release {
       debuggable      false

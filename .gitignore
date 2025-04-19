@@ -2,7 +2,7 @@
 node_modules/
 
 # debug output from Android string translator
-android-studio-project/WebMonkey/src/main/res/debug.en.txt
+android-studio-project/BluetoothChat/src/withAllLanguageTranslations/res/debug.zh.txt
 
 # Android generated
 bin
