@@ -14,22 +14,36 @@ public class BluetoothClassicClient {
   }
 
   public static void send(String macAddress, byte[] bytes) {
-    try {
-      Utils.addLogMessage(Constants.LocalDevice, "BluetoothClassicClient: opening connection" + "\nTo: " + macAddress + "\nSending: " + bytes.length + " bytes");
+    Utils.addLogMessage(Constants.LocalDevice, "BluetoothClassicClient: opening connection" + "\nTo: " + macAddress + "\nSending: " + bytes.length + " bytes");
 
-      BluetoothDevice btDevice = App.btAdapter.getRemoteDevice(macAddress);
-      BluetoothSocket btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(
-        Utils.getUUID(macAddress, true)
-      );
+    (new MessageSenderThread(macAddress, bytes)).start();
+  }
 
-      btSocket.connect();
-      OutputStream out = btSocket.getOutputStream();
-      out.write(bytes);
-      out.flush();
-      out.close();
-      btSocket.close();
+  private static class MessageSenderThread extends Thread {
+    private final String macAddress;
+    private final byte[] bytes;
+
+    public MessageSenderThread(String macAddress, byte[] bytes) {
+      this.macAddress = macAddress;
+      this.bytes = bytes;
     }
-    catch(Exception e) {}
+
+    public void run() {
+      try {
+        BluetoothDevice btDevice = App.btAdapter.getRemoteDevice(macAddress);
+        BluetoothSocket btSocket = btDevice.createInsecureRfcommSocketToServiceRecord(
+          Utils.getUUID(macAddress, true)
+        );
+
+        btSocket.connect();
+        OutputStream out = btSocket.getOutputStream();
+        out.write(bytes);
+        out.flush();
+        out.close();
+        btSocket.close();
+      }
+      catch(Exception e) {}
+    }
   }
 
 }
