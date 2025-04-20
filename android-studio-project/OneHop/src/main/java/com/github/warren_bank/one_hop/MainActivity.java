@@ -13,7 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements PermissionsMgr.PermissionsListener {
+public class MainActivity extends Activity implements BluetoothMgr.BluetoothListener, PermissionsMgr.PermissionsListener {
 
   public static enum Fragments {
     ALL_EDGES, EDGE_CHAT, EDGE_LOG
@@ -26,14 +26,29 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    if (App.btAdapter == null) {
+    if (!BluetoothMgr.isSupported()) {
       Toast.makeText(this, R.string.bluetooth_not_supported, Toast.LENGTH_SHORT).show();
       finish();
       return;
     }
 
-    didEnableBT = !App.btAdapter.isEnabled();
+    requestEnableBT();
+  }
+
+  private void requestEnableBT() {
+    BluetoothMgr.requestEnable(this, this);
+  }
+
+  @Override
+  public void onBluetoothEnabled(boolean didEnable) {
+    didEnableBT = didEnable;
     requestPermissions();
+  }
+
+  @Override
+  public void onBluetoothDenied() {
+    Toast.makeText(this, R.string.bluetooth_denied, Toast.LENGTH_SHORT).show();
+    requestEnableBT();
   }
 
   private void requestPermissions() {
@@ -70,6 +85,13 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
       stopBluetooth();
       releaseBluetooth();
     }
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    BluetoothMgr.onActivityResult(this, requestCode, resultCode, data);
   }
 
   @Override
@@ -128,22 +150,7 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
       .commit();
   }
 
-  private void enableBluetooth() {
-    if (!didEnableBT) return;
-
-    if (!App.btAdapter.isEnabled())
-      App.btAdapter.enable();
-  }
-
-  private void disableBluetooth() {
-    if (!didEnableBT) return;
-
-    if (App.btAdapter.isEnabled())
-      App.btAdapter.disable();
-  }
-
   private void initBluetooth() {
-    enableBluetooth();
     WakeLockMgr.acquire(this);
 
     BluetoothLowEnergyClient.initCentralManager(this);
@@ -166,8 +173,10 @@ public class MainActivity extends Activity implements PermissionsMgr.Permissions
     BluetoothLowEnergyServer.close();
     BluetoothClassicServer.close();
 
+    if (didEnableBT)
+      BluetoothMgr.disable();
+
     WakeLockMgr.release();
-    disableBluetooth();
   }
 
   // Menu > Settings:

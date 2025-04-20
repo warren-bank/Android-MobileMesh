@@ -11,6 +11,7 @@
 
   <!-- Errors -->
   <string name="bluetooth_not_supported">Device does not support Bluetooth!</string>
+  <string name="bluetooth_denied">Bluetooth must be turned on!</string>
   <string name="permissions_denied">All permissions are required!</string>
 
   <!-- Menu -->

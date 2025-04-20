@@ -15,8 +15,6 @@ public final class PermissionsMgr {
     public void onPermissionsDenied  ();
   }
 
-  private static int REQUEST_CODE_PERMISSIONS = 1;
-
   private static String[] getAllPermissions() {
     if (Build.VERSION.SDK_INT < 23)
       return null;
@@ -68,11 +66,11 @@ public final class PermissionsMgr {
     if ((permissions == null) || (permissions.length == 0))
       listener.onPermissionsGranted();
     else
-      activity.requestPermissions(permissions, REQUEST_CODE_PERMISSIONS);
+      activity.requestPermissions(permissions, Constants.REQUEST_CODE_PERMISSIONS);
   }
 
   public static void onRequestPermissionsResult(PermissionsListener listener, int requestCode, String[] permissions, int[] grantResults) {
-    if (requestCode == REQUEST_CODE_PERMISSIONS) {
+    if (requestCode == Constants.REQUEST_CODE_PERMISSIONS) {
       boolean OK = true;
       for (int result : grantResults) {
         OK = OK && (result == PackageManager.PERMISSION_GRANTED);
